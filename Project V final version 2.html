@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Valentine 💕</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #ffb6c1, #ffc0cb, #ffd6e8);
+      font-family: "Comic Sans MS", "Segoe UI", cursive;
+      overflow: hidden;
+    }
+
+    table {
+      width: 85%;
+      max-width: 520px;
+      height: 360px;
+      background: linear-gradient(145deg, #ffffff, #fff0f6);
+      border-radius: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    th {
+      font-size: 26px;
+      color: #d6336c;
+      user-select: none;
+    }
+
+    #message {
+      font-size: 16px;
+      color: #a61e4d;
+      height: 24px;
+    }
+
+    input[type="button"] {
+      padding: 14px 34px;
+      font-size: 18px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="button"]:active {
+      transform: scale(0.96);
+    }
+
+    #yes {
+      background: linear-gradient(135deg, #ff4d6d, #ff85a1);
+      color: white;
+      box-shadow: 0 8px 18px rgba(255,77,109,0.5);
+    }
+
+    #no {
+      position: absolute;
+      background: #f1f3f5;
+      color: #495057;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 22px;
+      animation: hearts 1.4s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes hearts {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(1.8);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <table id="table">
+    <tr height="180">
+      <th colspan="2" id="question">
+        Will u be my Valentine? 💗
+      </th>
+    </tr>
+
+    <tr height="30">
+      <th colspan="2">
+        <div id="message"></div>
+      </th>
+    </tr>
+
+    <tr height="120">
+      <th align="left" style="padding-left: 40px;">
+        <input type="button" id="yes" value="YES">
+      </th>
+      <th></th>
+    </tr>
+  </table>
+
+  <!-- Floating NO button -->
+  <input type="button" id="no" value="NO">
+
+  <script>
+    const table = document.getElementById("table");
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const msg = document.getElementById("message");
+    const question = document.getElementById("question");
+
+    let misses = 0;
+    let hesitationTimer;
+    let noStart = { left: 0, top: 0 };
+
+    const messages = [
+      "imma be saaaad 😔",
+      "pls don’t do this to me 🥺",
+      "ok now my heart hurts 💔",
+      "fine… i give up 😳"
+    ];
+
+    function yesAction() {
+      for (let i = 0; i < 20; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerHTML = "💖";
+
+        const rect = this.getBoundingClientRect();
+        heart.style.left =
+          rect.left + rect.width / 2 + Math.random() * 60 - 30 + "px";
+        heart.style.top =
+          rect.top + rect.height / 2 + "px";
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1400);
+      }
+
+      msg.innerText = "YAY 💞💞💞";
+    }
+
+    yesBtn.onclick = yesAction;
+
+    function placeNoStart() {
+      const rect = table.getBoundingClientRect();
+      const left = rect.right - noBtn.offsetWidth - 40;
+      const top = rect.bottom - 90;
+
+      noBtn.style.left = left + "px";
+      noBtn.style.top = top + "px";
+
+      noStart = { left, top };
+    }
+
+    function resetHesitation() {
+      clearTimeout(hesitationTimer);
+      hesitationTimer = setTimeout(() => {
+        question.innerText = "…still thinking about it? 🥺";
+      }, 4000);
+    }
+
+    function moveNo() {
+      misses++;
+      resetHesitation();
+
+      const tableRect = table.getBoundingClientRect();
+      const safeTop = tableRect.top + 210;
+
+      const maxX = tableRect.width - noBtn.offsetWidth - 20;
+      const maxY = tableRect.height - (safeTop - tableRect.top) - noBtn.offsetHeight - 20;
+
+      noBtn.style.left = tableRect.left + Math.random() * maxX + "px";
+      noBtn.style.top = safeTop + Math.random() * maxY + "px";
+
+      if (misses % 3 === 0) {
+        msg.innerText = messages[Math.min(misses / 3 - 1, messages.length - 1)];
+      }
+
+      if (misses >= 15) {
+        noBtn.value = "YES";
+        noBtn.style.background = "#ff85a1";
+        noBtn.style.color = "white";
+
+        noBtn.style.left = noStart.left + "px";
+        noBtn.style.top = noStart.top + "px";
+
+        noBtn.removeEventListener("mouseover", moveNo);
+        noBtn.removeEventListener("touchstart", moveNo);
+
+        noBtn.onclick = yesAction;
+        msg.innerText = "okay okay… YES 💗";
+      }
+    }
+
+    noBtn.addEventListener("mouseover", moveNo);
+    noBtn.addEventListener("touchstart", moveNo);
+
+    placeNoStart();
+    resetHesitation();
+    window.addEventListener("resize", placeNoStart);
+  </script>
+
+</body>
+</html>
